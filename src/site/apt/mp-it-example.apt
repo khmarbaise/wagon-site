@@ -1,0 +1,193 @@
+~~
+~~ The Maven Unit- and Integration Test Guide (MaUI for short)
+~~
+~~ Copyright (c) 2011 by SoftwareEntwicklung Beratung Schulung (SoEBeS)
+~~ Copyright (c) 2011 by Karl Heinz Marbaise
+~~
+~~ Licensed to the Apache Software Foundation (ASF) under one or more
+~~ contributor license agreements.  See the NOTICE file distributed with
+~~ this work for additional information regarding copyright ownership.
+~~ The ASF licenses this file to You under the Apache License, Version 2.0
+~~ (the "License"); you may not use this file except in compliance with
+~~ the License.  You may obtain a copy of the License at
+~~
+~~    http://www.apache.org/licenses/LICENSE-2.0
+~~
+~~ Unless required by applicable law or agreed to in writing, software
+~~ distributed under the License is distributed on an "AS IS" BASIS,
+~~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+~~ See the License for the specific language governing permissions and
+~~ limitations under the License.
+~~
+
+ ------
+ Maven Plugin Integration Test Example
+ ------
+ Karl Heinz Marbaise
+ ------
+ 3. April 2011
+ ------
+
+Maven Plugin Development
+
+* Integration Test Example
+
+  In this example we will
+  {{{./mp-it-source-example.html}implement a very simple Maven Plugin}}
+  which will printout some information about the current project.
+
+  So the question is now: How to test this Plugin? Of course we can do
+  a <<<mvn install>>> an run every time we change something but this
+  is very time consuming and error prone so we prefer to do
+  an automatic integration tests which can be achieved by using the
+  {{{http://maven.apache.org/plugins/maven-invoker-plugin/}Maven Invoker Plugin}}.
+
+  The {{{http://maven.apache.org/plugins/maven-invoker-plugin/}Maven Invoker Plugin}}
+  will setup an complete environment which contains a local Maven repository
+  and will do the execution of the integration tests as well.
+
+  We have to change our project layout and add a first integration test
+  of which results into the following structure:
+
++--------
+.
+|-- pom.xml
+`-- src
+    |-- it
+    |   |-- basicTest
+    |   |   |-- invoker.properties
+    |   |   |-- pom.xml
+    |   |   |-- src
+    |   |   `-- verify.bsh
+    |   `-- settings.xml
+    `-- main
+        `-- java
+            `-- com
+                `-- soebes
+                    `-- maven
+                        `-- plugins
+                            `-- mlv
+                                `-- IntegrationTestMojo.java
++--------
+
+  Furthermore we have to add the configuration for the Maven Invoker Plugin
+  into our <<<pom.xml>>> file as well.
+
++--------
+<project...>
+  [...]
+  <!-- Profile definition for running integration-test running the integration
+    tests with the following command line: mvn -Prun-its integration-test -->
+  <profiles>
+    <profile>
+      <id>run-its</id>
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-invoker-plugin</artifactId>
+            <version>1.5</version>
+            <configuration>
+              <debug>false</debug>
+              <projectsDirectory>src/it</projectsDirectory>
+              <cloneProjectsTo>${project.build.directory}/it</cloneProjectsTo>
+              <pomIncludes>
+                <pomInclude>*/pom.xml</pomInclude>
+              </pomIncludes>
+              <preBuildHookScript>setup</preBuildHookScript>
+              <postBuildHookScript>verify</postBuildHookScript>
+              <localRepositoryPath>${project.build.directory}/local-repo</localRepositoryPath>
+              <settingsFile>src/it/settings.xml</settingsFile>
+              <debug>false</debug>
+              <goals>
+                <goal>clean</goal>
+                <goal>verify</goal>
+              </goals>
+            </configuration>
+            <executions>
+              <execution>
+                <id>integration-test</id>
+                <goals>
+                  <goal>install</goal>
+                  <goal>run</goal>
+                </goals>
+              </execution>
+            </executions>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+  </profiles>
+
+</project>
+
++--------
+
+~~ Give here some examples where to find the "Best Practice" ?
+
+  First i have to mention that the configuration for the
+  {{{http://maven.apache.org/plugins/maven-invoker-plugin/}Maven Invoker Plugin}}
+  is put into a profile which must be activated manually.
+  The reason is that many plugins do it that way. You can 
+  call it "Best Practice", but i'm not sure if it is. 
+  I would recommend to put into a real configuration without
+  a profile. The disadvantage of such a setup is that
+  the integration tests will run during the release process.
+
+  Before the integration tests starts the 
+  {{{http://maven.apache.org/plugins/maven-invoker-plugin/}Maven Invoker Plugin}}
+  will copy all contents from the <<<src/it/basicTest>>> area to a location under
+  the <<<target/it/>>> folder which is controlled by the
+  <cloneProjectsTo>. Furthermore is the
+  {{{http://maven.apache.org/plugins/maven-invoker-plugin/examples/filtering.html}Maven Invoker Plugin able to filter all files}}
+  which are located under <<<src/it>>> and copied to the <<<target/it>>> location.
+
+~~ Insert pom.xml from it/basicTest here.
+
+  During the run of the integration tests the Maven Invoker Plugin
+  will create a local repository controlled by <localRepositoryPath>.
+  It's intention is not to pollute the users local repository <<<.m2/repository>>>
+  with artifacts which came from the integration tests.
+
+  To get the setup work it's needed to have a <<<settings.xml>>> file which
+  has a special configuration. This is achieved by the <settingsFile>
+  configuration. 
+
++-------
+<settings>
+  <profiles>
+    <profile>
+      <id>it-repo</id>
+      <activation>
+        <activeByDefault>true</activeByDefault>
+      </activation>
+      <repositories>
+        <repository>
+          <id>local.central</id>
+          <url>@localRepositoryUrl@</url>
+          <releases>
+            <enabled>true</enabled>
+          </releases>
+          <snapshots>
+            <enabled>true</enabled>
+          </snapshots>
+        </repository>
+      </repositories>
+      <pluginRepositories>
+        <pluginRepository>
+          <id>local.central</id>
+          <url>@localRepositoryUrl@</url>
+          <releases>
+            <enabled>true</enabled>
+          </releases>
+          <snapshots>
+            <enabled>true</enabled>
+          </snapshots>
+        </pluginRepository>
+      </pluginRepositories>
+    </profile>
+  </profiles>
+</settings>
++-------
+
+  []

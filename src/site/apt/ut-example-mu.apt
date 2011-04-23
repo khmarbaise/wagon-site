@@ -1,0 +1,66 @@
+~~
+~~ The Maven Unit- and Integration Test Guide (MaUI for short)
+~~
+~~ Copyright (c) 2011 by SoftwareEntwicklung Beratung Schulung (SoEBeS)
+~~ Copyright (c) 2011 by Karl Heinz Marbaise
+~~
+~~ Licensed to the Apache Software Foundation (ASF) under one or more
+~~ contributor license agreements.  See the NOTICE file distributed with
+~~ this work for additional information regarding copyright ownership.
+~~ The ASF licenses this file to You under the Apache License, Version 2.0
+~~ (the "License"); you may not use this file except in compliance with
+~~ the License.  You may obtain a copy of the License at
+~~
+~~    http://www.apache.org/licenses/LICENSE-2.0
+~~
+~~ Unless required by applicable law or agreed to in writing, software
+~~ distributed under the License is distributed on an "AS IS" BASIS,
+~~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+~~ See the License for the specific language governing permissions and
+~~ limitations under the License.
+~~
+
+ ------
+ Unit Test Multiple Usage
+ ------
+ Karl Heinz Marbaise
+ ------
+ 16. April 2011
+ ------
+
+Multiple Usage of Test Classes
+
+  If you have larger projects it happens that you have test classes or helper classes
+  for unit tests which you would like to reuse in different projects of your own.
+
+  Let us take a look at the following projects <<<m1>>>, <<<m2>>> and <<<test>>>.
+  The projects m1 and m2 are created within your company but otherwise they are unrelated.
+  So there some basic setup's for you projects which are always the same. So you decided
+  to put them into a separated module <<<test>>>, but now the problem occurs that you
+  like to access those classes from the other modules.
+
++--------
+  m1
+  m2
+  test (common unit test helper)
++--------
+
+  In a multi-module build you can reuse unit test class in the same way.
+
++--------
+  pom.xml
+  m1
+  m2
+  test
++--------
+
+
++--------
+<project ...>
+  [...]
+</project>
++--------
+
+
+  []
+

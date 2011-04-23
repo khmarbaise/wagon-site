@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+
+    The Maven Unit- and Integration Test Guide (MaUI for short)
+
+    Copyright (c) 2011 by SoftwareEntwicklung Beratung Schulung (SoEBeS)
+    Copyright (c) 2011 by Karl Heinz Marbaise
+
+    Licensed to the Apache Software Foundation (ASF) under one or more
+    contributor license agreements.  See the NOTICE file distributed with
+    this work for additional information regarding copyright ownership.
+    The ASF licenses this file to You under the Apache License, Version 2.0
+    (the "License"); you may not use this file except in compliance with
+    the License.  You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+
+-->
+<project
+  xmlns="http://maven.apache.org/DECORATION/1.0.0"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/DECORATION/1.0.0 http://maven.apache.org/xsd/decoration-1.0.0.xsd"
+  name="Maven Unit and Integration Test Guide">
+
+  <body>
+
+      <menu name="Overview">
+        <item name="Introduction" href="index.html"/>
+        <item name="Examples" href="examples.html"/>
+      </menu>
+      <menu name="Unit Tests">
+        <item name="Overview" href="overview-unit-test.html"/>
+        <item name="Example" href="ut-example.html"/>
+        <item name="Interface" href="ut-example-interface.html"/>
+        <item name="Multiple Usage" href="ut-example-mu.html"/>
+      </menu>
+      <menu name="Integration Tests">
+        <item name="Overview" href="overview-integration-test.html"/>
+        <item name="Basic Example" href="it-example.html"/>
+        <item name="Different Source Location" href="it-example-1.html"/>
+        <item name="Container Example" href="it-example-container.html"/>
+        <item name="Interface" href="it-example-interface.html"/>
+        <item name="Running multiple times" href="it-example-multiple-times.html"/>
+      </menu>
+      <menu name="Maven Plugin Integration Tests">
+        <item name="Overview" href="overview-mp-it.html"/>
+        <item name="Basic Source Example" href="mp-it-source-example.html"/>
+        <item name="Basic Example" href="mp-it-example.html"/>
+      </menu>
+      <menu ref="reports" />
+  </body>
+</project>
+

@@ -1,0 +1,214 @@
+~~
+~~ The Maven Unit- and Integration Test Guide (MaUI for short)
+~~
+~~ Copyright (c) 2011 by SoftwareEntwicklung Beratung Schulung (SoEBeS)
+~~ Copyright (c) 2011 by Karl Heinz Marbaise
+~~
+~~ Licensed to the Apache Software Foundation (ASF) under one or more
+~~ contributor license agreements.  See the NOTICE file distributed with
+~~ this work for additional information regarding copyright ownership.
+~~ The ASF licenses this file to You under the Apache License, Version 2.0
+~~ (the "License"); you may not use this file except in compliance with
+~~ the License.  You may obtain a copy of the License at
+~~
+~~    http://www.apache.org/licenses/LICENSE-2.0
+~~
+~~ Unless required by applicable law or agreed to in writing, software
+~~ distributed under the License is distributed on an "AS IS" BASIS,
+~~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+~~ See the License for the specific language governing permissions and
+~~ limitations under the License.
+~~
+
+ ------
+ Unit Test Interfaces
+ ------
+ Karl Heinz Marbaise
+ ------
+ 1. April 2011
+ ------
+
+How to Unit Test Interfaces
+
+  A typical situation within a project is that you created an interface and
+  have a number of implementations. Concluding the former idea the structure
+  of the project follows:
+
++--------
+.
+|-- interface-impl-a
+|   |-- pom.xml
+|   ...
+|-- interface-impl-b
+|   |-- pom.xml
+|   ...
+|-- interface-interface
+|   |-- pom.xml
+|   ...
+|-- interface-test
+|   |-- pom.xml
+|   ...
+`-- pom.xml
++--------
+
+  So the question in this case is: How to test the implementations?
+  But is this true? No. We don't have to test the implementations
+  we have to test the behavior of the interface for all implementations.
+  This can be achieved by writing unit tests in both modules <<<interface-impl-a>>>
+  and <<<interface-impl-b>>> which means in other words to copy&paste
+  the unit test code but this is error prone and of course not effective.
+
+  The solution is to implement the unit test code in an abstract class
+  in a separate module <<<interface-test>>>.
+
++----------
+public abstract class ImplementationUnitTest {
+
+    protected static IFunction function;
+
+    @Test
+    public void firstTest() {
+        assertTrue(function.function("function1"));
+    }
+
+    @Test
+    public void secondTest() {
+        assertFalse(function.function("function"));
+    }
+}
++----------
+
+
+  The more important part is the <<<pom.xml>>> file which is needed in
+  this case. We have to make sure that the test code is made available
+  for other modules as well. So we have to define the pom like the
+  following:
+
++----------
+  [...]
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-jar-plugin</artifactId>
+        <executions>
+          <execution>
+            <goals>
+              <goal>test-jar</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+    </plugins>
+  </build>
+
+  <dependencies>
+    <dependency>
+      <groupId>${project.groupId}</groupId>
+      <artifactId>interface-interface</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>junit</groupId>
+      <artifactId>junit</artifactId>
+      <scope>test</scope>
+    </dependency>
+  </dependencies>
+  [...]
++----------
+
+
+  Based on that we can now implement the unit test for
+  implementation-a like this:
+
++----------
+public class ImplementationAUnitTest extends ImplementationUnitTest {
+  @BeforeClass
+  public static void beforeClass() {
+    function = new ImplementationA();
+  }
+}
++----------
+
+  And for implementation-b like this:
+
++----------
+public class ImplementationBUnitTest extends ImplementationUnitTest {
+  @BeforeClass
+  public static void beforeClass() {
+    function = new ImplementationB();
+  }
+}
++----------
+
+  The only thing we need to implement is the initialization
+  code to create an instance of the particular class.
+
++----------
+.
+|-- interface-impl-a
+|   |-- pom.xml
+|   `-- src
+|       |-- main
+|       |   `-- java
+|       |       `-- com
+|       |           `-- soebes
+|       |               `-- training
+|       |                   `-- module
+|       |                       `-- ut
+|       |                           `-- ImplementationA.java
+|       `-- test
+|           `-- java
+|               `-- com
+|                   `-- soebes
+|                       `-- training
+|                           `-- module
+|                               `-- ut
+|                                   `-- ImplementationAUnitTest.java
+|-- interface-impl-b
+|   |-- pom.xml
+|   `-- src
+|       |-- main
+|       |   `-- java
+|       |       `-- com
+|       |           `-- soebes
+|       |               `-- training
+|       |                   `-- module
+|       |                       `-- ut
+|       |                           `-- ImplementationB.java
+|       `-- test
+|           `-- java
+|               `-- com
+|                   `-- soebes
+|                       `-- training
+|                           `-- module
+|                               `-- ut
+|                                   `-- ImplementationBUnitTest.java
+|-- interface-interface
+|   |-- pom.xml
+|   `-- src
+|       `-- main
+|           `-- java
+|               `-- com
+|                   `-- soebes
+|                       `-- training
+|                           `-- module
+|                               `-- ut
+|                                   `-- IFunction.java
+|-- interface-test
+|   |-- pom.xml
+|   `-- src
+|       |-- main
+|       `-- test
+|           `-- java
+|               `-- com
+|                   `-- soebes
+|                       `-- training
+|                           `-- module
+|                               `-- ut
+|                                   `-- ImplementationUnitTest.java
+`-- pom.xml
++----------
+
+  []
+
